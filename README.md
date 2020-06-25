@@ -3,7 +3,7 @@
 How to use (examples)
 
 ## Recipe
-    CMSSW_11_1_0_pre3
+    cmsrel CMSSW_11_1_0_pre3
     cd CMSSW_11_1_0_pre3/src/
     cmsenv
     git cms-merge-topic felicepantaleo:fix_realistic_sim_clusters_11_1_0_pre3
