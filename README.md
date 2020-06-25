@@ -12,6 +12,6 @@ How to use (examples)
     git cms-addpkg RecoParticleFlow
     git cms-addpkg FastSimulation
     git clone https://github.com/cghuh/PFHCalib.git
-    scramb -j4
+    scram b -j4
     cd PFHCalib/PFHadHLT/python
     cmsRun PFHadCalib_cfg.py
