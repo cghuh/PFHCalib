@@ -3,8 +3,8 @@
 How to use (examples)
 
 ## Recipe
-    cmsrel CMSSW_11_1_0_pre3
-    cd CMSSW_11_1_0_pre3/src/
+    cmsrel CMSSW_11_1_0_pre6
+    cd CMSSW_11_1_0_pre6/src/
     cmsenv
     git cms-merge-topic felicepantaleo:fix_realistic_sim_clusters_11_1_0_pre3
     git clone https://github.com/missirol/JMETriggerAnalysis.git -o missirol -b phase2
