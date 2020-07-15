@@ -106,8 +106,8 @@ PFHadHLT::~PFHadHLT()
 	std::cout << " - With only 1 track in the block ... " << nCh[4] << std::endl;
 	std::cout << " - With p > " << pMin_ << " GeV/c ................. " << nCh[5] << std::endl;
 	std::cout << " - With at least " << nPixMin_ << " pixel hits ....... " << nCh[6] << std::endl;
-	std::cout << " - With more than "<< nHitMin_[0] << " track hits ..... " << nCh[7] << std::endl;
 	std::cout << " - With E_ECAL < " << ecalMax_ << " GeV ............ " << nCh[8] << std::endl;
+	std::cout << " - PF - Gen track matching ..... " << nCh[7] << std::endl;
 
 	tf1->cd();
 	s->Write();
@@ -148,8 +148,7 @@ PFHadHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	nEv[0]++;
 	std::vector<int> genPart;
 	genPart.clear();
-	if ( isSimu ) 
-	{ 
+	if ( isSimu ) { 
 		for( GenParticleCollection::const_iterator itGenPar = genParticles->begin(); itGenPar != genParticles->end(); itGenPar++ ){
 			float dR_ = -1;
 			float mindR_ = 99;
@@ -162,14 +161,14 @@ PFHadHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 							if(dR_ < mindR_) mindR_ = dR_;
 						}
 					}
-					dr_.push_back(mindR_);
+					//dr_.push_back(mindR_);
 					if(mindR_ > 1.){
-						for(int itTruePar=0;itTruePar<(int)(*trueParticles).size();itTruePar++){
+						for(int itTruePar=0;itTruePar<(int)(*trueParticles).size();itTruePar++) {
               const reco::PFSimParticle& ptc = (*trueParticles)[itTruePar];
 							if((*trueParticles)[itTruePar].charge()>0) continue;
 							const reco::PFTrajectoryPoint& gen = (*trueParticles)[itTruePar].trajectoryPoint(reco::PFTrajectoryPoint::ClosestApproach);
 							dR_ = reco::deltaR(itGenPar->eta(), itGenPar->phi(), gen.momentum().Eta(),gen.momentum().Phi());
-							if(dR_ > 0.001) continue;
+							if(dR_ > 0.01) continue;
 							nEv[1]++;
 
 							// Check if there is a reconstructed track
@@ -341,26 +340,28 @@ PFHadHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 									 << "; HCAL = " << hcalRaw << std::endl;
 									 */
 
+								reco::PFTrajectoryPoint::LayerType ecalEntrance = reco::PFTrajectoryPoint::ECALEntrance;
+								const reco::PFTrajectoryPoint& tpatecal = ptc.extrapolatedPoint( ecalEntrance );
+								//cout << tpatecal.isValid() << endl;
+								//cout << "eta " << tpatecal.positionREP().Eta() << endl;
+								//cout << "phi " << tpatecal.positionREP().Phi() << endl;
+								//cout << "dr " << reco::deltaR(tpatecal.positionREP().Eta(), tpatecal.positionREP().Phi(), gen.momentum().Eta(),gen.momentum().Phi()) << endl;
+                if(!tpatecal.isValid()) continue;
+								eta_ = tpatecal.positionREP().Eta();
+								phi_ = tpatecal.positionREP().Phi();
+                //if(abs(eta_) > 1.5) continue;
+                if(reco::deltaR(gen.momentum().Eta(),gen.momentum().Phi(), eta_, phi_) > 0.1) continue;
+                nCh[7]++;
+								true_ = std::sqrt(tpatecal.momentum().Vect().Mag2());
+								pfcsID.push_back(pfc.particleId()); 
+								Eecal_.push_back(ecalRaw);
+								Ehcal_.push_back(hcalRaw);
+								dr_.push_back(reco::deltaR(gen.momentum().Eta(),gen.momentum().Phi(), eta_, phi_));
 								p_ = p;
 								ecal_ = ecalRaw;
 								hcal_ = hcalRaw;
 								ho_ = hoRaw;
 								charge_ = pfc.charge();
-								reco::PFTrajectoryPoint::LayerType ecalEntrance = reco::PFTrajectoryPoint::ECALEntrance;
-								//const reco::PFTrajectoryPoint& tpatecal = ((*trueParticles)[itTruePar]).extrapolatedPoint( ecalEntrance );
-								const reco::PFTrajectoryPoint& tpatecal = ptc.extrapolatedPoint( ecalEntrance );
-								//cout <<  reco::PFTrajectoryPoint::ECALEntrance << endl;
-								//const reco::PFTrajectoryPoint& tpatecal = ((*trueParticles)[itTruePar]).extrapolatedPoint( reco::PFTrajectoryPoint::ECALEntrance );
-								cout << tpatecal.isValid() << endl;
-								cout << "eta " << tpatecal.positionREP().Eta() << endl;
-								cout << "dr " << reco::deltaR(tpatecal.positionREP().Eta(), tpatecal.positionREP().Phi(), gen.momentum().Eta(),gen.momentum().Phi()) << endl;
-								eta_ = tpatecal.positionREP().Eta();
-								phi_ = tpatecal.positionREP().Phi();
-								true_ = std::sqrt(tpatecal.momentum().Vect().Mag2());
-								pfcsID.push_back(pfc.particleId()); 
-								Eecal_.push_back(ecalRaw);
-								Ehcal_.push_back(hcalRaw);
-								//dr_.push_back(0);
 								s->Fill();
 							}
 						}
@@ -452,10 +453,10 @@ PFHadHLT::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 void PFHadHLT::Book_trees()
 {
 
-	s->Branch("genpt"	,&gen_pt_,   "gen_pt/F");  
-	s->Branch("genE"	,&gen_E_,   "gen_E/F");  
-	s->Branch("geneta" ,&gen_eta_, "gen_eta/F");  
-	s->Branch("genphi" ,&gen_phi_, "gen_phi/F");
+	//s->Branch("genpt"	,&gen_pt_,   "gen_pt/F");  
+	//s->Branch("genE"	,&gen_E_,   "gen_E/F");  
+	//s->Branch("geneta" ,&gen_eta_, "gen_eta/F");  
+	//s->Branch("genphi" ,&gen_phi_, "gen_phi/F");
 	s->Branch("true",&true_,"true/F");  
 	s->Branch("p"   ,&p_,   "p/F");  
 	s->Branch("ecal",&ecal_,"ecal/F");  

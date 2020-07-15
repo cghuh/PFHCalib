@@ -9,12 +9,12 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 #from PFHCalib.PFHadHLT.dump_hlt_SinglePion import *
 #from PFHCalib.PFHadHLT.step3_TrackingV2_11_0_0 import *
-from JMETriggerAnalysis.NTuplizers.hltPhase2_TRKv02_cfg import *
-from JMETriggerAnalysis.NTuplizers.tmp import *
+from JMETriggerAnalysis.NTuplizers.hltPhase2_TRKv06_cfg import *
+#from JMETriggerAnalysis.NTuplizers.tmp import *
 #from PFHCalib.PFHadHLT.hltPhase2_TRKv02_cfg import *
 
-#process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+#process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100))
 
 process.source = cms.Source("PoolSource",
  # replace 'myfile.root' with the source file you want to use
@@ -28,9 +28,8 @@ process.pfhadhlt = cms.EDAnalyzer('PFHadHLT',
     #maxEventsToPrint = cms.untracked.int32(1)
 		   #genEvnTag = cms.InputTag("generator"),
 		   genParTag        = cms.InputTag("genParticles"),
+                   #HLTPFCandidates  = cms.InputTag("particleFlowTmpBarrel"),
                    HLTPFCandidates  = cms.InputTag("particleFlowTmp"),
-                   #PFSimParticles   = cms.InputTag("simPFProducer"),
-                   #HLTPFCandidates  = cms.InputTag("hltParticleFlow","","TEST"),
                    PFSimParticles   = cms.InputTag("particleFlowSimParticle"),
 
                    ptMin = cms.double(0.01),                     # Minimum pt
